@@ -164,14 +164,15 @@ const TM={
   'Mexico':'MÉXICO','South Africa':'AFRICA DO SUL','Korea Republic':'CORÉIA DO SUL','South Korea':'CORÉIA DO SUL',
   'Czechia':'REPUBLICA TCHÉCA','Czech Republic':'REPUBLICA TCHÉCA',
   'Canada':'CANADÁ','Bosnia and Herzegovina':'BÓSNIA','Bosnia & Herzegovina':'BÓSNIA',
-  'Qatar':'CATAR','Switzerland':'SUÍÇA',
+  'Bosnia-Herzegovina':'BÓSNIA','Bosnia':'BÓSNIA','Herzegovina':'BÓSNIA',
+  'Qatar':'CATAR','Switzerland':'SUÍÇA','Katar':'CATAR',
   'Brazil':'BRASIL','Morocco':'MARROCOS','Haiti':'HAITI','Scotland':'ESCÓCIA',
   'United States':'ESTADOS UNIDOS','USA':'ESTADOS UNIDOS',
   'Paraguay':'PARAGUAI','Australia':'AUSTRÁLIA','Türkiye':'TURQUIA','Turkey':'TURQUIA',
   'Germany':'ALEMANHA','Curaçao':'CURAÇAO','Curacao':'CURAÇAO',
   'Netherlands':'HOLANDA','Japan':'JAPÃO','Sweden':'SUÉCIA','Tunisia':'TUNÍSIA',
   'Belgium':'BÉLGICA','Egypt':'EGITO','Iran':'IRÃ','IR Iran':'IRÃ','New Zealand':'NOVA ZELÂNDIA',
-  'Spain':'ESPANHA','Cape Verde':'CABO VERDA','Saudi Arabia':'ARÁBIA SAUDITA','Uruguay':'URUGUAI',
+  'Spain':'ESPANHA','Cape Verde':'CABO VERDA','Cape Verde Islands':'CABO VERDA','Saudi Arabia':'ARÁBIA SAUDITA','Uruguay':'URUGUAI',
   'France':'FRANÇA','Senegal':'SENEGAL','Iraq':'IRAQUE','Norway':'NORUEGA',
   'Argentina':'ARGENTINA','Algeria':'ARGÉLIA','Austria':'ÁUSTRIA','Jordan':'JORDÂNIA',
   'Portugal':'PORTUGAL','DR Congo':'RD CONGO','Congo DR':'RD CONGO','Congo, DR':'RD CONGO',
@@ -289,13 +290,17 @@ async function loadResults(){
     matches.forEach(m=>{
       const t1k=TM[m.homeTeam?.name];
       const t2k=TM[m.awayTeam?.name];
-      if(!t1k||!t2k)return;
+      if(!t1k||!t2k){
+        if(!t1k) console.warn('Time não reconhecido (home):', m.homeTeam?.name);
+        if(!t2k) console.warn('Time não reconhecido (away):', m.awayTeam?.name);
+        return;
+      }
       const ft=m.score?.fullTime;
       const played=m.status==='FINISHED';
       const live=m.status==='IN_PLAY'||m.status==='PAUSED';
       if(live)hasLive=true;
-      const g1=played||live?(ft?.home??null):null;
-      const g2=played||live?(ft?.away??null):null;
+      const g1=played?(ft?.home??null):null;
+      const g2=played?(ft?.away??null):null;
       const utc=new Date(m.utcDate);
       const brt=new Date(utc.getTime()-3*60*60*1000);
       const hora=brt.toTimeString().slice(0,5);
