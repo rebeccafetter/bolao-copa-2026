@@ -25,7 +25,15 @@ jobs:
             -H "X-Auth-Token: bbad7579ac744d87840858b9234aa5a3" \
             "https://api.football-data.org/v4/competitions/WC/matches" \
             -o resultados.json
-          echo "Jogos retornados: $(python3 -c "import json; d=json.load(open('resultados.json')); print(len(d.get('matches',[])))")"
+          python3 -c "
+          import json
+          d=json.load(open('resultados.json'))
+          ms=d.get('matches',[])
+          print(f'Total: {len(ms)} jogos')
+          for m in ms:
+              if m['status']=='FINISHED':
+                  print(m['homeTeam']['name'],'vs',m['awayTeam']['name'],'|',m['score']['fullTime']['home'],'-',m['score']['fullTime']['away'])
+          "
 
       - name: Commit
         env:
