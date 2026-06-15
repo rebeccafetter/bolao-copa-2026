@@ -1,0 +1,39 @@
+name: Update Results
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: update-results
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          clean: true
+
+      - name: Fetch results
+        run: |
+          curl -s \
+            -H "X-Auth-Token: bbad7579ac744d87840858b9234aa5a3" \
+            "https://api.football-data.org/v4/competitions/WC/matches" \
+            -o resultados.json
+          echo "Jogos retornados: $(python3 -c "import json; d=json.load(open('resultados.json')); print(len(d.get('matches',[])))")"
+
+      - name: Commit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.email "bot@bolao"
+          git config user.name "Bolao Bot"
+          git add resultados.json
+          git diff --cached --quiet && echo "Sem mudancas" && exit 0
+          git commit -m "Resultados atualizados"
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/rebeccafetter/bolao-copa-2026.git HEAD:main
