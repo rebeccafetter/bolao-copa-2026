@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏆 Bolão Copa 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
+  :root{--verde:#009c3b;--amarelo:#ffdf00;--azul:#002776;--verde-dark:#007a2e;--bg:#0a0e1a;--bg2:#111827;--card:#1a2235;--card2:#1f2c42;--border:rgba(255,255,255,0.08);--text:#e8eaf0;--muted:#8892a4;--gold:#ffd700;--silver:#c0c8d8;--bronze:#cd7f32}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+  .header{background:linear-gradient(135deg,var(--azul) 0%,#001a55 50%,var(--verde-dark) 100%);padding:20px 16px 0;position:relative;overflow:hidden}
+  .header::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(255,223,0,0.03) 20px,rgba(255,223,0,0.03) 21px)}
+  .header-top{display:flex;align-items:center;justify-content:space-between;position:relative}
+  .header-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--amarelo);line-height:1}
+  .header-title span{display:block;font-size:13px;color:rgba(255,255,255,0.6);font-family:'Inter',sans-serif;font-weight:500;letter-spacing:3px;text-transform:uppercase;margin-bottom:2px}
+  .trophy{font-size:40px}
+  .prize-banner{display:flex;gap:8px;margin-top:16px}
+  .prize-item{flex:1;background:rgba(0,0,0,0.3);border-radius:8px 8px 0 0;padding:10px 8px;text-align:center;border-top:3px solid transparent}
+  .prize-item.gold{border-color:var(--gold)}.prize-item.silver{border-color:var(--silver)}.prize-item.bronze{border-color:var(--bronze)}
+  .prize-item .amount{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--amarelo)}
+  .prize-item.gold .amount{color:var(--gold);font-size:26px}.prize-item.silver .amount{color:var(--silver)}.prize-item.bronze .amount{color:var(--bronze)}
+  .prize-item .label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+  .tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:none;padding:14px 18px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all 0.2s;letter-spacing:0.5px;text-transform:uppercase}
+  .tab.active{color:var(--amarelo);border-bottom-color:var(--amarelo)}
+  .content{padding:16px;max-width:640px;margin:0 auto}
+  .section{display:none}.section.active{display:block}
+  .live-dot{width:8px;height:8px;background:#ff4444;border-radius:50%;display:inline-block;margin-right:5px;animation:blink 1s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+  .banner{border-radius:10px;padding:10px 14px;font-size:12px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .banner.ok{background:rgba(0,156,59,0.08);border:1px solid rgba(0,156,59,0.2);color:#4ddb82}
+  .banner.error{background:rgba(255,60,60,0.08);border:1px solid rgba(255,60,60,0.2);color:#ff8080}
+  .banner.loading{background:rgba(255,223,0,0.07);border:1px solid rgba(255,223,0,0.15);color:rgba(255,223,0,0.8)}
+  .today-date{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:var(--amarelo);margin-bottom:2px}
+  .today-sub{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:20px}
+  .game-card{background:var(--card);border-radius:12px;margin-bottom:12px;overflow:hidden;border:1px solid var(--border)}
+  .game-card.played{border-color:rgba(0,156,59,0.3)}.game-card.live{border-color:rgba(255,60,60,0.6);box-shadow:0 0 12px rgba(255,60,60,0.15)}
+  .game-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px}
+  .game-group{color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase}
+  .badge{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase}
+  .badge-ok{background:rgba(0,156,59,0.15);color:#4ddb82}
+  .badge-pending{background:rgba(255,223,0,0.1);color:var(--amarelo)}
+  .badge-live{background:rgba(255,60,60,0.2);color:#ff6060}
+  .game-score-row{display:flex;align-items:center;padding:16px 14px;gap:12px}
+  .game-team{flex:1;text-align:center}
+  .game-team-flag{font-size:28px;margin-bottom:4px}
+  .game-team-name{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+  .game-center{text-align:center;min-width:90px}
+  .scoreline{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:4px;color:var(--amarelo);line-height:1}
+  .scoreline.pending{color:var(--muted);font-size:22px;letter-spacing:1px}
+  .palpites-section{border-top:1px solid var(--border);padding:12px 14px}
+  .palpites-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .pal-rows{display:flex;flex-direction:column;gap:4px}
+  .pal-row{display:grid;grid-template-columns:70px 1fr auto;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;font-size:13px;background:rgba(255,255,255,0.02)}
+  .p-name{font-weight:600;color:var(--muted);font-size:12px}
+  .p-score{font-weight:700;color:var(--text);text-align:center}
+  .p-pts{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:700;min-width:44px;text-align:right}
+  .pts-exact{background:rgba(255,223,0,0.15);color:var(--amarelo)}
+  .pts-winner{background:rgba(0,156,59,0.15);color:#4ddb82}
+  .pts-partial{background:rgba(100,150,255,0.12);color:#8aabff}
+  .pts-zero{color:var(--muted)}.pts-pending{color:var(--muted)}
+  .rank-card{background:var(--card);border-radius:12px;overflow:hidden;margin-bottom:16px}
+  .rank-header{padding:14px 16px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);display:flex;justify-content:space-between}
+  .rank-row{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;gap:12px}
+  .rank-row:last-child{border-bottom:none}.rank-row:hover{background:rgba(255,255,255,0.03)}
+  .rank-pos{font-family:'Bebas Neue',sans-serif;font-size:22px;width:32px;text-align:center;flex-shrink:0}
+  .rank-pos.p1{color:var(--gold)}.rank-pos.p2{color:var(--silver)}.rank-pos.p3{color:var(--bronze)}.rank-pos.last{color:#ff4444}
+  .rank-info{flex:1}.rank-name{font-weight:700;font-size:16px}.rank-picks{font-size:11px;color:var(--muted);margin-top:2px}
+  .rank-score{text-align:right}.rank-pts{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--amarelo);line-height:1}
+  .rank-pts-label{font-size:10px;color:var(--muted);text-transform:uppercase}
+  .rank-prize{font-size:12px;color:var(--verde);font-weight:600;margin-top:2px}.rank-prize.danger{color:#ff4444}
+  .last-badge{background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);border-radius:6px;padding:3px 7px;font-size:10px;color:#ff6666;font-weight:600;margin-top:3px;display:inline-block}
+  .picks-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+  .pick-card{background:var(--card);border-radius:10px;padding:12px}
+  .pick-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+  .pick-item{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:4px 0;border-bottom:1px solid var(--border)}
+  .pick-item:last-child{border-bottom:none}.pick-person{color:var(--muted);font-size:11px}.pick-value{font-weight:600;color:var(--text)}.pick-value.brasil{color:var(--verde)}
+  .group-hdr{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--amarelo);margin:20px 0 10px;display:flex;align-items:center;gap:8px}
+  .group-hdr::after{content:'';flex:1;height:1px;background:var(--border)}
+  .jogo-card{background:var(--card);border-radius:10px;margin-bottom:8px;overflow:hidden}
+  .jogo-teams{display:flex;align-items:center;padding:12px 14px;gap:8px;justify-content:center}
+  .team-name{font-size:13px;font-weight:700;text-align:right;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.team-name.right{text-align:left}
+  .score-box{display:flex;align-items:center;gap:4px;background:var(--bg);border-radius:6px;padding:4px 10px;min-width:70px;justify-content:center}
+  .score-num{font-family:'Bebas Neue',sans-serif;font-size:22px;min-width:18px;text-align:center;color:var(--amarelo)}.score-sep{color:var(--muted);font-size:14px}.score-box.pending .score-num{color:var(--muted);font-size:14px}
+  .jogo-meta{font-size:11px;color:var(--muted);padding:0 14px 10px;display:flex;gap:8px;align-items:center}
+  .jogo-badge{padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase}
+  .badge-played{background:rgba(0,156,59,0.15);color:var(--verde)}.badge-pend{background:rgba(255,223,0,0.1);color:var(--amarelo)}.badge-live2{background:rgba(255,60,60,0.15);color:#ff6060}
+  .pal-toggle{padding:8px 14px;font-size:11px;color:var(--muted);cursor:pointer;border-top:1px solid var(--border);display:flex;align-items:center;gap:6px;user-select:none}
+  .pal-toggle:hover{color:var(--text)}.pal-toggle .arrow{transition:transform 0.2s}.pal-toggle.open .arrow{transform:rotate(180deg)}
+  .pal-grid{display:none;padding:8px 14px 12px;gap:4px;flex-direction:column}.pal-grid.open{display:flex}
+  .share-btn{width:100%;background:#25D366;color:white;border:none;border-radius:12px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;font-family:'Inter',sans-serif}
+  .copy-btn{width:100%;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:12px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;font-family:'Inter',sans-serif}
+  .copy-btn:hover{background:var(--card2)}
+  .preview-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;font-family:monospace;color:var(--text);max-height:300px;overflow-y:auto;margin-bottom:12px}
+  .share-tabs{display:flex;gap:8px;margin-bottom:16px}
+  .share-tab-btn{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;text-align:center;font-family:'Inter',sans-serif;transition:all 0.15s}
+  .share-tab-btn.active{border-color:var(--amarelo);color:var(--amarelo);background:rgba(255,223,0,0.05)}
+  .sec-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--amarelo);margin-bottom:12px}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--verde);color:white;padding:12px 24px;border-radius:100px;font-weight:600;font-size:14px;transition:transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275);z-index:999;white-space:nowrap}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-top">
+    <div class="header-title"><span>FIFA World Cup</span>BOLÃO 2026</div>
+    <div class="trophy">🏆</div>
+  </div>
+  <div class="prize-banner">
+    <div class="prize-item gold"><div class="amount">R$350</div><div class="label">🥇 Campeão +R$25</div></div>
+    <div class="prize-item silver"><div class="amount">R$100</div><div class="label">🥈 2º lugar</div></div>
+    <div class="prize-item bronze"><div class="amount">R$50</div><div class="label">🥉 3º lugar</div></div>
+    <div class="prize-item" style="border-top:3px solid #ff4444"><div class="amount" style="color:#ff6666;font-size:18px">-R$25</div><div class="label">💀 Último</div></div>
+  </div>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="showTab('hoje',this)">📅 Hoje</div>
+  <div class="tab" onclick="showTab('ranking',this)">🏅 Ranking</div>
+  <div class="tab" onclick="showTab('jogos',this)">⚽ Jogos</div>
+  <div class="tab" onclick="showTab('palpites',this)">🎯 Palpites</div>
+  <div class="tab" onclick="showTab('share',this)">📱 Compartilhar</div>
+</div>
+<div class="content">
+  <div id="hoje" class="section active">
+    <div class="today-date" id="today-label"></div>
+    <div class="today-sub" id="today-sub"></div>
+    <div id="hoje-banner" class="banner loading">⏳ Carregando...</div>
+    <div id="hoje-list"></div>
+  </div>
+  <div id="ranking" class="section">
+    <div id="rank-banner" class="banner loading">⏳ Calculando...</div>
+    <div class="rank-card"><div class="rank-header"><span>Participante</span><span>Pontos</span></div><div id="rank-list"></div></div>
+    <div class="sec-title">PALPITES ESPECIAIS</div>
+    <div class="picks-grid" id="picks-grid"></div>
+  </div>
+  <div id="jogos" class="section"><div id="jogos-list"></div></div>
+  <div id="palpites" class="section">
+    <div style="margin-bottom:12px">
+      <select id="person-select" onchange="renderPalpitesView()" style="width:100%;padding:12px 14px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:10px;font-size:15px;font-family:Inter,sans-serif;cursor:pointer;outline:none"></select>
+    </div>
+    <div id="palpites-person"></div>
+  </div>
+  <div id="share" class="section">
+    <div class="sec-title" style="margin-bottom:12px">MENSAGEM PARA O GRUPO</div>
+    <div class="share-tabs">
+      <div class="share-tab-btn active" onclick="setShareType('hoje',this)">📅 Jogos de Hoje</div>
+      <div class="share-tab-btn" onclick="setShareType('ranking',this)">🏅 Ranking</div>
+    </div>
+    <div class="preview-box" id="share-preview"></div>
+    <button class="share-btn" onclick="openWhatsApp()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Abrir no WhatsApp
+    </button>
+    <button class="copy-btn" onclick="copyMessage()">📋 Copiar mensagem</button>
+    <div style="font-size:12px;color:var(--muted);text-align:center">Cole direto no grupo do WhatsApp</div>
+  </div>
+</div>
+<div class="toast" id="toast">✅ Copiado!</div>
+<script>
+// ── MAPA API → chave interna ────────────────────────────────────────
+const TM={
+  'Mexico':'MÉXICO','South Africa':'AFRICA DO SUL','Korea Republic':'CORÉIA DO SUL','South Korea':'CORÉIA DO SUL',
+  'Czechia':'REPUBLICA TCHÉCA','Czech Republic':'REPUBLICA TCHÉCA',
+  'Canada':'CANADÁ','Bosnia and Herzegovina':'BÓSNIA','Bosnia & Herzegovina':'BÓSNIA',
+  'Bosnia-Herzegovina':'BÓSNIA','Bosnia':'BÓSNIA','Herzegovina':'BÓSNIA',
+  'Qatar':'CATAR','Switzerland':'SUÍÇA','Katar':'CATAR',
+  'Brazil':'BRASIL','Morocco':'MARROCOS','Haiti':'HAITI','Scotland':'ESCÓCIA',
+  'United States':'ESTADOS UNIDOS','USA':'ESTADOS UNIDOS',
+  'Paraguay':'PARAGUAI','Australia':'AUSTRÁLIA','Türkiye':'TURQUIA','Turkey':'TURQUIA',
+  'Germany':'ALEMANHA','Curaçao':'CURAÇAO','Curacao':'CURAÇAO',
+  'Netherlands':'HOLANDA','Japan':'JAPÃO','Sweden':'SUÉCIA','Tunisia':'TUNÍSIA',
+  'Belgium':'BÉLGICA','Egypt':'EGITO','Iran':'IRÃ','IR Iran':'IRÃ','New Zealand':'NOVA ZELÂNDIA',
+  'Spain':'ESPANHA','Cape Verde':'CABO VERDA','Cape Verde Islands':'CABO VERDA','Saudi Arabia':'ARÁBIA SAUDITA','Uruguay':'URUGUAI',
+  'France':'FRANÇA','Senegal':'SENEGAL','Iraq':'IRAQUE','Norway':'NORUEGA',
+  'Argentina':'ARGENTINA','Algeria':'ARGÉLIA','Austria':'ÁUSTRIA','Jordan':'JORDÂNIA',
+  'Portugal':'PORTUGAL','DR Congo':'RD CONGO','Congo DR':'RD CONGO','Congo, DR':'RD CONGO',
+  'Uzbekistan':'UZBESQUISTÃO','Colombia':'COLÔMBIA',
+  'England':'INGLATERRA','Croatia':'CROÁCIA','Ghana':'GANA','Panama':'PANAMÁ',
+  "Ivory Coast":'COSTA DO MARFIM',"Côte d'Ivoire":'COSTA DO MARFIM',"Cote d'Ivoire":'COSTA DO MARFIM',
+  "Côte D'Ivoire":'COSTA DO MARFIM','Ecuador':'EQUADOR',
+};
+
+const DN={
+  'MÉXICO':'México','AFRICA DO SUL':'Africa do Sul','CORÉIA DO SUL':'Coréia do Sul','REPUBLICA TCHÉCA':'Rep. Tcheca',
+  'CANADÁ':'Canadá','BÓSNIA':'Bósnia','CATAR':'Catar','SUÍÇA':'Suíça','BRASIL':'Brasil',
+  'MARROCOS':'Marrocos','HAITI':'Haiti','ESCÓCIA':'Escócia','ESTADOS UNIDOS':'Estados Unidos',
+  'PARAGUAI':'Paraguai','AUSTRÁLIA':'Austrália','TURQUIA':'Turquia','ALEMANHA':'Alemanha',
+  'CURAÇAO':'Curaçao','HOLANDA':'Holanda','JAPÃO':'Japão','SUÉCIA':'Suécia','TUNÍSIA':'Tunísia',
+  'BÉLGICA':'Bélgica','EGITO':'Egito','IRÃ':'Irã','NOVA ZELÂNDIA':'Nova Zelândia',
+  'ESPANHA':'Espanha','CABO VERDA':'Cabo Verde','ARÁBIA SAUDITA':'Arábia Saudita',
+  'URUGUAI':'Uruguai','FRANÇA':'França','SENEGAL':'Senegal','IRAQUE':'Iraque',
+  'NORUEGA':'Noruega','ARGENTINA':'Argentina','ARGÉLIA':'Argélia','ÁUSTRIA':'Áustria',
+  'JORDÂNIA':'Jordânia','PORTUGAL':'Portugal','RD CONGO':'RD Congo','UZBESQUISTÃO':'Uzbequistão',
+  'COLÔMBIA':'Colômbia','INGLATERRA':'Inglaterra','CROÁCIA':'Croácia','GANA':'Gana',
+  'PANAMÁ':'Panamá','COSTA DO MARFIM':'Costa do Marfim','EQUADOR':'Equador',
+};
+
+const FLAGS={
+  'MÉXICO':'🇲🇽','AFRICA DO SUL':'🇿🇦','CORÉIA DO SUL':'🇰🇷','REPUBLICA TCHÉCA':'🇨🇿',
+  'CANADÁ':'🇨🇦','BÓSNIA':'🇧🇦','CATAR':'🇶🇦','SUÍÇA':'🇨🇭','BRASIL':'🇧🇷',
+  'MARROCOS':'🇲🇦','HAITI':'🇭🇹','ESCÓCIA':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','ESTADOS UNIDOS':'🇺🇸','PARAGUAI':'🇵🇾',
+  'AUSTRÁLIA':'🦘','TURQUIA':'🇹🇷','ALEMANHA':'🇩🇪','CURAÇAO':'🏝️','HOLANDA':'🇳🇱',
+  'JAPÃO':'🇯🇵','SUÉCIA':'🇸🇪','TUNÍSIA':'🇹🇳','BÉLGICA':'🇧🇪','EGITO':'🇪🇬',
+  'IRÃ':'🇮🇷','NOVA ZELÂNDIA':'🇳🇿','ESPANHA':'🇪🇸','CABO VERDA':'🇨🇻',
+  'ARÁBIA SAUDITA':'🇸🇦','URUGUAI':'🇺🇾','FRANÇA':'🇫🇷','SENEGAL':'🇸🇳',
+  'IRAQUE':'🇮🇶','NORUEGA':'🇳🇴','ARGENTINA':'🇦🇷','ARGÉLIA':'🇩🇿',
+  'ÁUSTRIA':'🇦🇹','JORDÂNIA':'🇯🇴','PORTUGAL':'🇵🇹','RD CONGO':'🇨🇩',
+  'UZBESQUISTÃO':'🇺🇿','COLÔMBIA':'🇨🇴','INGLATERRA':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','CROÁCIA':'🇭🇷',
+  'GANA':'🇬🇭','PANAMÁ':'🇵🇦','COSTA DO MARFIM':'🇨🇮','EQUADOR':'🇪🇨',
+};
+
+// ── PALPITES ────────────────────────────────────────────────────────
+const PALPITES={
+  'Bola':{'AFRICA DO SUL x CORÉIA DO SUL':'0x2','ALEMANHA x COSTA DO MARFIM':'2x0','ALEMANHA x CURAÇAO':'4x0','ARGENTINA x ARGÉLIA':'2x0','ARGENTINA x ÁUSTRIA':'1x1','ARGÉLIA x ÁUSTRIA':'0x0','ARÁBIA SAUDITA x URUGUAI':'0x2','AUSTRÁLIA x TURQUIA':'1x2','BRASIL x HAITI':'4x0','BRASIL x MARROCOS':'1x1','BÉLGICA x EGITO':'2x1','BÉLGICA x IRÃ':'2x0','BÓSNIA x CATAR':'2x1','CABO VERDA x ARÁBIA SAUDITA':'1x2','CANADÁ x BÓSNIA':'2x0','CANADÁ x CATAR':'2x0','CATAR x SUÍÇA':'0x2','COLÔMBIA x PORTUGAL':'1x2','COLÔMBIA x RD CONGO':'2x0','CORÉIA DO SUL x REPUBLICA TCHÉCA':'2x1','COSTA DO MARFIM x EQUADOR':'1x1','CROÁCIA x GANA':'2x0','CURAÇAO x COSTA DO MARFIM':'0x2','EGITO x IRÃ':'2x1','EQUADOR x ALEMANHA':'0x1','EQUADOR x CURAÇAO':'3x0','ESCÓCIA x BRASIL':'0x2','ESCÓCIA x MARROCOS':'1x2','ESPANHA x ARÁBIA SAUDITA':'2x0','ESPANHA x CABO VERDA':'3x0','ESTADOS UNIDOS x AUSTRÁLIA':'2x0','ESTADOS UNIDOS x PARAGUAI':'2x1','FRANÇA x IRAQUE':'3x0','FRANÇA x SENEGAL':'2x1','GANA x PANAMÁ':'2x0','HAITI x ESCÓCIA':'0x2','HOLANDA x JAPÃO':'2x1','HOLANDA x SUÉCIA':'1x1','INGLATERRA x CROÁCIA':'2x1','INGLATERRA x GANA':'2x1','IRAQUE x NORUEGA':'0x3','IRÃ x NOVA ZELÂNDIA':'2x0','JAPÃO x SUÉCIA':'2x2','JORDÂNIA x ARGENTINA':'1x3','JORDÂNIA x ARGÉLIA':'0x1','MARROCOS x HAITI':'3x0','MÉXICO x AFRICA DO SUL':'2x0','MÉXICO x CORÉIA DO SUL':'1x1','NORUEGA x FRANÇA':'1x2','NORUEGA x SENEGAL':'2x0','NOVA ZELÂNDIA x BÉLGICA':'0x4','NOVA ZELÂNDIA x EGITO':'0x2','PANAMÁ x CROÁCIA':'0x2','PANAMÁ x INGLATERRA':'0x3','PARAGUAI x AUSTRÁLIA':'1x1','PORTUGAL x RD CONGO':'3x0','PORTUGAL x UZBESQUISTÃO':'1x0','RD CONGO x UZBESQUISTÃO':'0x1','REPUBLICA TCHÉCA x AFRICA DO SUL':'2x1','REPUBLICA TCHÉCA x MÉXICO':'0x1','SENEGAL x IRAQUE':'2x0','SUÉCIA x TUNÍSIA':'1x1','SUÍÇA x BÓSNIA':'1x0','SUÍÇA x CANADÁ':'1x0','TUNÍSIA x HOLANDA':'0x1','TUNÍSIA x JAPÃO':'0x1','TURQUIA x ESTADOS UNIDOS':'1x0','TURQUIA x PARAGUAI':'1x1','URUGUAI x CABO VERDA':'3x0','URUGUAI x ESPANHA':'1x3','UZBESQUISTÃO x COLÔMBIA':'0x2','ÁUSTRIA x JORDÂNIA':'2x0',campeao:'Espanha',vice:'Inglaterra',terceiro:'França',quarto:'Argentina',artilheiro:'Oyarzabal'},
+  'Latino':{'AFRICA DO SUL x CORÉIA DO SUL':'1x3','ALEMANHA x COSTA DO MARFIM':'3x2','ALEMANHA x CURAÇAO':'5x0','ARGENTINA x ARGÉLIA':'3x1','ARGENTINA x ÁUSTRIA':'1x1','ARGÉLIA x ÁUSTRIA':'1x2','ARÁBIA SAUDITA x URUGUAI':'1x2','AUSTRÁLIA x TURQUIA':'1x3','BRASIL x HAITI':'4x0','BRASIL x MARROCOS':'3x1','BÉLGICA x EGITO':'1x1','BÉLGICA x IRÃ':'3x1','BÓSNIA x CATAR':'3x1','CABO VERDA x ARÁBIA SAUDITA':'1x3','CANADÁ x BÓSNIA':'1x1','CANADÁ x CATAR':'2x1','CATAR x SUÍÇA':'0x1','COLÔMBIA x PORTUGAL':'2x2','COLÔMBIA x RD CONGO':'4x1','CORÉIA DO SUL x REPUBLICA TCHÉCA':'1x1','COSTA DO MARFIM x EQUADOR':'2x2','CROÁCIA x GANA':'2x2','CURAÇAO x COSTA DO MARFIM':'1x3','EGITO x IRÃ':'2x2','EQUADOR x ALEMANHA':'1x1','EQUADOR x CURAÇAO':'3x1','ESCÓCIA x BRASIL':'1x2','ESCÓCIA x MARROCOS':'1x1','ESPANHA x ARÁBIA SAUDITA':'3x1','ESPANHA x CABO VERDA':'5x0','ESTADOS UNIDOS x AUSTRÁLIA':'2x1','ESTADOS UNIDOS x PARAGUAI':'2x1','França x IRAQUE':'4x0','FRANÇA x SENEGAL':'3x1','GANA x PANAMÁ':'2x0','HAITI x ESCÓCIA':'0x2','HOLANDA x JAPÃO':'2x2','HOLANDA x SUÉCIA':'2x0','INGLATERRA x CROÁCIA':'1x1','INGLATERRA x GANA':'4x2','IRAQUE x NORUEGA':'0x2','IRÃ x NOVA ZELÂNDIA':'2x1','JAPÃO x SUÉCIA':'2x2','JORDÂNIA x ARGENTINA':'0x4','JORDÂNIA x ARGÉLIA':'1x2','MARROCOS x HAITI':'3x1','MÉXICO x AFRICA DO SUL':'2x0','MÉXICO x CORÉIA DO SUL':'2x2','NORUEGA x FRANÇA':'3x3','NORUEGA x SENEGAL':'3x2','NOVA ZELÂNDIA x BÉLGICA':'1x3','NOVA ZELÂNDIA x EGITO':'1x2','PANAMÁ x CROÁCIA':'0x2','PANAMÁ x INGLATERRA':'0x3','PARAGUAI x AUSTRÁLIA':'1x0','PORTUGAL x RD CONGO':'5x1','PORTUGAL x UZBESQUISTÃO':'3x0','RD CONGO x UZBESQUISTÃO':'1x2','REPUBLICA TCHÉCA x AFRICA DO SUL':'1x0','REPUBLICA TCHÉCA x MÉXICO':'0x0','SENEGAL x IRAQUE':'2x1','SUÉCIA x TUNÍSIA':'1x1','SUÍÇA x BÓSNIA':'0x0','SUÍÇA x CANADÁ':'2x0','TUNÍSIA x HOLANDA':'0x1','TUNÍSIA x JAPÃO':'1x2','TURQUIA x ESTADOS UNIDOS':'2x1','TURQUIA x PARAGUAI':'1x1','URUGUAI x CABO VERDA':'3x0','URUGUAI x ESPANHA':'2x2','UZBESQUISTÃO x COLÔMBIA':'1x3','ÁUSTRIA x JORDÂNIA':'2x0',campeao:'Portugal',vice:'França',terceiro:'Espanha',quarto:'Brasil',artilheiro:'Mbappé'},
+  'Rossetto':{'AFRICA DO SUL x CORÉIA DO SUL':'1x2','ALEMANHA x COSTA DO MARFIM':'3x1','ALEMANHA x CURAÇAO':'4x0','ARGENTINA x ARGÉLIA':'2x0','ARGENTINA x ÁUSTRIA':'1x0','ARGÉLIA x ÁUSTRIA':'1x2','ARÁBIA SAUDITA x URUGUAI':'1x2','AUSTRÁLIA x TURQUIA':'1x2','BRASIL x HAITI':'4x0','BRASIL x MARROCOS':'1x0','BÉLGICA x EGITO':'2x0','BÉLGICA x IRÃ':'2x0','BÓSNIA x CATAR':'2x1','CABO VERDA x ARÁBIA SAUDITA':'0x1','CANADÁ x BÓSNIA':'1x0','CANADÁ x CATAR':'1x0','CATAR x SUÍÇA':'0x3','COLÔMBIA x PORTUGAL':'0x2','COLÔMBIA x RD CONGO':'2x0','CORÉIA DO SUL x REPUBLICA TCHÉCA':'1x1','COSTA DO MARFIM x EQUADOR':'1x2','CROÁCIA x GANA':'2x0','CURAÇAO x COSTA DO MARFIM':'0x2','EGITO x IRÃ':'1x1','EQUADOR x ALEMANHA':'1x2','EQUADOR x CURAÇAO':'3x0','ESCÓCIA x BRASIL':'1x2','ESCÓCIA x MARROCOS':'1x2','ESPANHA x ARÁBIA SAUDITA':'2x0','ESPANHA x CABO VERDA':'4x0','ESTADOS UNIDOS x AUSTRÁLIA':'2x0','ESTADOS UNIDOS x PARAGUAI':'2x0','FRANÇA x IRAQUE':'3x0','FRANÇA x SENEGAL':'2x0','GANA x PANAMÁ':'2x1','HAITI x ESCÓCIA':'0x3','HOLANDA x JAPÃO':'2x1','HOLANDA x SUÉCIA':'2x1','INGLATERRA x CROÁCIA':'2x1','INGLATERRA x GANA':'2x0','IRAQUE x NORUEGA':'0x2','IRÃ x NOVA ZELÂNDIA':'2x0','JAPÃO x SUÉCIA':'0x2','JORDÂNIA x ARGENTINA':'0x2','JORDÂNIA x ARGÉLIA':'0x1','MARROCOS x HAITI':'3x0','MÉXICO x AFRICA DO SUL':'2x0','MÉXICO x CORÉIA DO SUL':'2x1','NORUEGA x FRANÇA':'0x2','NORUEGA x SENEGAL':'1x1','NOVA ZELÂNDIA x BÉLGICA':'0x3','NOVA ZELÂNDIA x EGITO':'0x1','PANAMÁ x CROÁCIA':'0x3','PANAMÁ x INGLATERRA':'0x3','PARAGUAI x AUSTRÁLIA':'1x0','PORTUGAL x RD CONGO':'3x0','PORTUGAL x UZBESQUISTÃO':'3x0','RD CONGO x UZBESQUISTÃO':'1x1','REPUBLICA TCHÉCA x AFRICA DO SUL':'2x1','REPUBLICA TCHÉCA x MÉXICO':'0x1','SENEGAL x IRAQUE':'2x0','SUÉCIA x TUNÍSIA':'2x0','SUÍÇA x BÓSNIA':'2x1','SUÍÇA x CANADÁ':'2x1','TUNÍSIA x HOLANDA':'0x2','TUNÍSIA x JAPÃO':'1x2','TURQUIA x ESTADOS UNIDOS':'1x2','TURQUIA x PARAGUAI':'1x1','URUGUAI x CABO VERDA':'2x0','URUGUAI x ESPANHA':'0x2','UZBESQUISTÃO x COLÔMBIA':'0x2','ÁUSTRIA x JORDÂNIA':'2x0',campeao:'Espanha',vice:'França',terceiro:'Inglaterra',quarto:'Argentina',artilheiro:'Mbappé'},
+  'Fred':{'AFRICA DO SUL x CORÉIA DO SUL':'1x2','ALEMANHA x COSTA DO MARFIM':'2x0','ALEMANHA x CURAÇAO':'4x0','ARGENTINA x ARGÉLIA':'2x0','ARGENTINA x ÁUSTRIA':'2x1','ARGÉLIA x ÁUSTRIA':'1x1','ARÁBIA SAUDITA x URUGUAI':'1x2','AUSTRÁLIA x TURQUIA':'1x1','BRASIL x HAITI':'3x0','BRASIL x MARROCOS':'2x1','BÉLGICA x EGITO':'2x1','BÉLGICA x IRÃ':'2x0','BÓSNIA x CATAR':'2x1','CABO VERDA x ARÁBIA SAUDITA':'0x1','CANADÁ x BÓSNIA':'2x0','CANADÁ x CATAR':'1x0','CATAR x SUÍÇA':'1x3','COLÔMBIA x PORTUGAL':'1x3','COLÔMBIA x RD CONGO':'2x0','CORÉIA DO SUL x REPUBLICA TCHÉCA':'1x1','COSTA DO MARFIM x EQUADOR':'1x1','CROÁCIA x GANA':'2x1','CURAÇAO x COSTA DO MARFIM':'0x2','EGITO x IRÃ':'1x1','EQUADOR x ALEMANHA':'1x2','EQUADOR x CURAÇAO':'3x1','ESCÓCIA x BRASIL':'0x2','ESCÓCIA x MARROCOS':'0x1','ESPANHA x ARÁBIA SAUDITA':'2x0','ESPANHA x CABO VERDA':'5x0','ESTADOS UNIDOS x AUSTRÁLIA':'2x1','ESTADOS UNIDOS x PARAGUAI':'1x1','FRANÇA x IRAQUE':'2x0','FRANÇA x SENEGAL':'1x1','GANA x PANAMÁ':'2x1','HAITI x ESCÓCIA':'0x2','HOLANDA x JAPÃO':'1x1','HOLANDA x SUÉCIA':'2x1','INGLATERRA x CROÁCIA':'1x1','INGLATERRA x GANA':'3x1','IRAQUE x NORUEGA':'0x2','IRÃ x NOVA ZELÂNDIA':'1x1','JAPÃO x SUÉCIA':'1x0','JORDÂNIA x ARGENTINA':'0x3','JORDÂNIA x ARGÉLIA':'0x2','MARROCOS x HAITI':'3x0','MÉXICO x AFRICA DO SUL':'2x0','MÉXICO x CORÉIA DO SUL':'1x1','NORUEGA x FRANÇA':'0x2','NORUEGA x SENEGAL':'0x1','NOVA ZELÂNDIA x BÉLGICA':'1x2','NOVA ZELÂNDIA x EGITO':'0x2','PANAMÁ x CROÁCIA':'0x2','PANAMÁ x INGLATERRA':'0x2','PARAGUAI x AUSTRÁLIA':'1x0','PORTUGAL x RD CONGO':'6x0','PORTUGAL x UZBESQUISTÃO':'3x1','RD CONGO x UZBESQUISTÃO':'1x1','REPUBLICA TCHÉCA x AFRICA DO SUL':'2x0','REPUBLICA TCHÉCA x MÉXICO':'1x2','SENEGAL x IRAQUE':'2x0','SUÉCIA x TUNÍSIA':'2x0','SUÍÇA x BÓSNIA':'2x1','SUÍÇA x CANADÁ':'1x1','TUNÍSIA x HOLANDA':'0x2','TUNÍSIA x JAPÃO':'0x2','TURQUIA x ESTADOS UNIDOS':'1x1','TURQUIA x PARAGUAI':'1x2','URUGUAI x CABO VERDA':'4x0','URUGUAI x ESPANHA':'1x2','UZBESQUISTÃO x COLÔMBIA':'1x2','ÁUSTRIA x JORDÂNIA':'2x1',campeao:'França',vice:'Espanha',terceiro:'Argentina',quarto:'Brasil',artilheiro:'Démbélè'},
+  'Juca':{'AFRICA DO SUL x CORÉIA DO SUL':'1x1','ALEMANHA x COSTA DO MARFIM':'2x1','ALEMANHA x CURAÇAO':'4x0','ARGENTINA x ARGÉLIA':'2x1','ARGENTINA x ÁUSTRIA':'2x1','ARGÉLIA x ÁUSTRIA':'1x2','ARÁBIA SAUDITA x URUGUAI':'0x2','AUSTRÁLIA x TURQUIA':'0x2','BRASIL x HAITI':'3x0','BRASIL x MARROCOS':'1x1','BÉLGICA x EGITO':'2x0','BÉLGICA x IRÃ':'2x0','BÓSNIA x CATAR':'2x0','CABO VERDA x ARÁBIA SAUDITA':'0x2','CANADÁ x BÓSNIA':'1x0','CANADÁ x CATAR':'2x0','CATAR x SUÍÇA':'0x2','COLÔMBIA x PORTUGAL':'1x2','COLÔMBIA x RD CONGO':'2x0','CORÉIA DO SUL x REPUBLICA TCHÉCA':'1x2','COSTA DO MARFIM x EQUADOR':'1x1','CROÁCIA x GANA':'2x0','CURAÇAO x COSTA DO MARFIM':'0x2','EGITO x IRÃ':'1x0','EQUADOR x ALEMANHA':'1x2','EQUADOR x CURAÇAO':'2x0','ESCÓCIA x BRASIL':'0x2','ESCÓCIA x MARROCOS':'1x2','ESPANHA x ARÁBIA SAUDITA':'2x0','ESPANHA x CABO VERDA':'4x0','ESTADOS UNIDOS x AUSTRÁLIA':'2x0','ESTADOS UNIDOS x PARAGUAI':'2x0','FRANÇA x IRAQUE':'4x0','FRANÇA x SENEGAL':'2x0','GANA x PANAMÁ':'2x0','HAITI x ESCÓCIA':'0x2','HOLANDA x JAPÃO':'1x1','HOLANDA x SUÉCIA':'2x0','INGLATERRA x CROÁCIA':'1x1','INGLATERRA x GANA':'2x1','IRAQUE x NORUEGA':'0x2','IRÃ x NOVA ZELÂNDIA':'1x1','JAPÃO x SUÉCIA':'2x1','JORDÂNIA x ARGENTINA':'0x3','JORDÂNIA x ARGÉLIA':'0x2','MARROCOS x HAITI':'2x0','MÉXICO x AFRICA DO SUL':'2x0','MÉXICO x CORÉIA DO SUL':'2x1','NORUEGA x FRANÇA':'1x2','NORUEGA x SENEGAL':'2x1','NOVA ZELÂNDIA x BÉLGICA':'0x2','NOVA ZELÂNDIA x EGITO':'0x1','PANAMÁ x CROÁCIA':'0x2','PANAMÁ x INGLATERRA':'0x2','PARAGUAI x AUSTRÁLIA':'2x1','PORTUGAL x RD CONGO':'3x0','PORTUGAL x UZBESQUISTÃO':'2x0','RD CONGO x UZBESQUISTÃO':'0x1','REPUBLICA TCHÉCA x AFRICA DO SUL':'2x1','REPUBLICA TCHÉCA x MÉXICO':'2x1','SENEGAL x IRAQUE':'2x0','SUÉCIA x TUNÍSIA':'1x1','SUÍÇA x BÓSNIA':'1x0','SUÍÇA x CANADÁ':'2x1','TUNÍSIA x HOLANDA':'1x2','TUNÍSIA x JAPÃO':'1x2','TURQUIA x ESTADOS UNIDOS':'1x0','TURQUIA x PARAGUAI':'2x1','URUGUAI x CABO VERDA':'3x0','URUGUAI x ESPANHA':'1x3','UZBESQUISTÃO x COLÔMBIA':'0x2','ÁUSTRIA x JORDÂNIA':'2x0',campeao:'França',vice:'Portugal',terceiro:'Espanha',quarto:'Inglaterra',artilheiro:'Mbappé'},
+  'Loira':{'AFRICA DO SUL x CORÉIA DO SUL':'0x1','ALEMANHA x COSTA DO MARFIM':'2x0','ALEMANHA x CURAÇAO':'4x0','ARGENTINA x ARGÉLIA':'3x0','ARGENTINA x ÁUSTRIA':'2x1','ARGÉLIA x ÁUSTRIA':'0x2','ARÁBIA SAUDITA x URUGUAI':'0x2','AUSTRÁLIA x TURQUIA':'1x1','BRASIL x HAITI':'4x0','BRASIL x MARROCOS':'2x1','BÉLGICA x EGITO':'2x0','BÉLGICA x IRÃ':'2x0','BÓSNIA x CATAR':'1x0','CABO VERDA x ARÁBIA SAUDITA':'1x1','CANADÁ x BÓSNIA':'2x0','CANADÁ x CATAR':'3x0','CATAR x SUÍÇA':'0x2','COLÔMBIA x PORTUGAL':'1x1','COLÔMBIA x RD CONGO':'2x0','CORÉIA DO SUL x REPUBLICA TCHÉCA':'2x1','COSTA DO MARFIM x EQUADOR':'1x2','CROÁCIA x GANA':'2x1','CURAÇAO x COSTA DO MARFIM':'0x1','EGITO x IRÃ':'2x1','EQUADOR x ALEMANHA':'0x2','EQUADOR x CURAÇAO':'3x0','ESCÓCIA x BRASIL':'0x2','ESCÓCIA x MARROCOS':'0x1','ESPANHA x ARÁBIA SAUDITA':'3x0','ESPANHA x CABO VERDA':'4x0','ESTADOS UNIDOS x AUSTRÁLIA':'2x1','ESTADOS UNIDOS x PARAGUAI':'2x0','FRANÇA x IRAQUE':'3x0','FRANÇA x SENEGAL':'2x0','GANA x PANAMÁ':'1x0','HAITI x ESCÓCIA':'0x1','HOLANDA x JAPÃO':'2x1','HOLANDA x SUÉCIA':'2x0','INGLATERRA x CROÁCIA':'2x1','INGLATERRA x GANA':'2x0','IRAQUE x NORUEGA':'0x3','IRÃ x NOVA ZELÂNDIA':'1x1','JAPÃO x SUÉCIA':'1x1','JORDÂNIA x ARGENTINA':'0x2','JORDÂNIA x ARGÉLIA':'0x1','MARROCOS x HAITI':'2x0','MÉXICO x AFRICA DO SUL':'2x0','MÉXICO x CORÉIA DO SUL':'1x1','NORUEGA x FRANÇA':'1x2','NORUEGA x SENEGAL':'2x1','NOVA ZELÂNDIA x BÉLGICA':'0x2','NOVA ZELÂNDIA x EGITO':'0x2','PANAMÁ x CROÁCIA':'0x2','PANAMÁ x INGLATERRA':'0x3','PARAGUAI x AUSTRÁLIA':'0x2','PORTUGAL x RD CONGO':'3x0','PORTUGAL x UZBESQUISTÃO':'3x0','RD CONGO x UZBESQUISTÃO':'1x1','REPUBLICA TCHÉCA x AFRICA DO SUL':'0x1','REPUBLICA TCHÉCA x MÉXICO':'0x2','SENEGAL x IRAQUE':'2x0','SUÉCIA x TUNÍSIA':'2x0','SUÍÇA x BÓSNIA':'2x0','SUÍÇA x CANADÁ':'1x1','TUNÍSIA x HOLANDA':'0x1','TUNÍSIA x JAPÃO':'0x2','TURQUIA x ESTADOS UNIDOS':'0x1','TURQUIA x PARAGUAI':'1x1','URUGUAI x CABO VERDA':'2x0','URUGUAI x ESPANHA':'1x3','UZBESQUISTÃO x COLÔMBIA':'0x2','ÁUSTRIA x JORDÂNIA':'2x0',campeao:'Brasil',vice:'Espanha',terceiro:'França',quarto:'Holanda',artilheiro:'Mbappé'},
+  'Taquara':{'AFRICA DO SUL x CORÉIA DO SUL':'0x1','ALEMANHA x COSTA DO MARFIM':'2x0','ALEMANHA x CURAÇAO':'3x0','ARGENTINA x ARGÉLIA':'2x0','ARGENTINA x ÁUSTRIA':'2x1','ARGÉLIA x ÁUSTRIA':'0x1','ARÁBIA SAUDITA x URUGUAI':'0x2','AUSTRÁLIA x TURQUIA':'1x2','BRASIL x HAITI':'2x0','BRASIL x MARROCOS':'2x0','BÉLGICA x EGITO':'2x1','BÉLGICA x IRÃ':'2x0','BÓSNIA x CATAR':'1x1','CABO VERDA x ARÁBIA SAUDITA':'1x1','CANADÁ x BÓSNIA':'1x0','CANADÁ x CATAR':'1x0','CATAR x SUÍÇA':'0x2','COLÔMBIA x PORTUGAL':'1x2','COLÔMBIA x RD CONGO':'2x0','CORÉIA DO SUL x REPUBLICA TCHÉCA':'1x1','COSTA DO MARFIM x EQUADOR':'0x1','CROÁCIA x GANA':'1x0','CURAÇAO x COSTA DO MARFIM':'0x2','EGITO x IRÃ':'1x1','EQUADOR x ALEMANHA':'1x2','EQUADOR x CURAÇAO':'2x0','ESCÓCIA x BRASIL':'0x2','ESCÓCIA x MARROCOS':'0x1','ESPANHA x ARÁBIA SAUDITA':'2x0','ESPANHA x CABO VERDA':'3x0','ESTADOS UNIDOS x AUSTRÁLIA':'2x0','ESTADOS UNIDOS x PARAGUAI':'1x0','FRANÇA x IRAQUE':'3x0','FRANÇA x SENEGAL':'2x0','GANA x PANAMÁ':'1x0','HAITI x ESCÓCIA':'1x2','HOLANDA x JAPÃO':'2x1','HOLANDA x SUÉCIA':'2x0','INGLATERRA x CROÁCIA':'2x1','INGLATERRA x GANA':'2x0','IRAQUE x NORUEGA':'0x2','IRÃ x NOVA ZELÂNDIA':'1x1','JAPÃO x SUÉCIA':'1x0','JORDÂNIA x ARGENTINA':'0x3','JORDÂNIA x ARGÉLIA':'0x1','MARROCOS x HAITI':'2x0','MÉXICO x AFRICA DO SUL':'2x0','MÉXICO x CORÉIA DO SUL':'1x0','NORUEGA x FRANÇA':'1x2','NORUEGA x SENEGAL':'1x0','NOVA ZELÂNDIA x BÉLGICA':'0x2','NOVA ZELÂNDIA x EGITO':'0x1','PANAMÁ x CROÁCIA':'0x2','PANAMÁ x INGLATERRA':'0x3','PARAGUAI x AUSTRÁLIA':'1x0','PORTUGAL x RD CONGO':'2x0','PORTUGAL x UZBESQUISTÃO':'2x0','RD CONGO x UZBESQUISTÃO':'0x1','REPUBLICA TCHÉCA x AFRICA DO SUL':'1x0','REPUBLICA TCHÉCA x MÉXICO':'0x1','SENEGAL x IRAQUE':'2x0','SUÉCIA x TUNÍSIA':'1x1','SUÍÇA x BÓSNIA':'1x0','SUÍÇA x CANADÁ':'2x1','TUNÍSIA x HOLANDA':'0x2','TUNÍSIA x JAPÃO':'0x2','TURQUIA x ESTADOS UNIDOS':'1x1','TURQUIA x PARAGUAI':'1x0','URUGUAI x CABO VERDA':'2x0','URUGUAI x ESPANHA':'1x2','UZBESQUISTÃO x COLÔMBIA':'0x2','ÁUSTRIA x JORDÂNIA':'2x0',campeao:'Espanha',vice:'França',terceiro:'Brasil',quarto:'Inglaterra',artilheiro:'Mbappé'},
+  'Kinho':{'AFRICA DO SUL x CORÉIA DO SUL':'1x1','ALEMANHA x COSTA DO MARFIM':'1x1','ALEMANHA x CURAÇAO':'4x0','ARGENTINA x ARGÉLIA':'2x0','ARGENTINA x ÁUSTRIA':'2x0','ARGÉLIA x ÁUSTRIA':'1x2','ARÁBIA SAUDITA x URUGUAI':'0x1','AUSTRÁLIA x TURQUIA':'0x2','BRASIL x HAITI':'4x0','BRASIL x MARROCOS':'2x1','BÉLGICA x EGITO':'2x0','BÉLGICA x IRÃ':'2x0','BÓSNIA x CATAR':'2x0','CABO VERDA x ARÁBIA SAUDITA':'0x1','CANADÁ x BÓSNIA':'0x2','CANADÁ x CATAR':'0x0','CATAR x SUÍÇA':'0x2','COLÔMBIA x PORTUGAL':'1x2','COLÔMBIA x RD CONGO':'2x0','CORÉIA DO SUL x REPUBLICA TCHÉCA':'1x0','COSTA DO MARFIM x EQUADOR':'2x0','CROÁCIA x GANA':'1x0','CURAÇAO x COSTA DO MARFIM':'0x3','EGITO x IRÃ':'0x0','EQUADOR x ALEMANHA':'1x2','EQUADOR x CURAÇAO':'2x0','ESCÓCIA x BRASIL':'0x2','ESCÓCIA x MARROCOS':'0x2','ESPANHA x ARÁBIA SAUDITA':'2x0','ESPANHA x CABO VERDA':'3x0','ESTADOS UNIDOS x AUSTRÁLIA':'1x0','ESTADOS UNIDOS x PARAGUAI':'0x1','FRANÇA x IRAQUE':'2x0','FRANÇA x SENEGAL':'2x1','GANA x PANAMÁ':'2x0','HAITI x ESCÓCIA':'0x3','HOLANDA x JAPÃO':'2x0','HOLANDA x SUÉCIA':'1x0','INGLATERRA x CROÁCIA':'1x0','INGLATERRA x GANA':'2x0','IRAQUE x NORUEGA':'0x1','IRÃ x NOVA ZELÂNDIA':'1x0','JAPÃO x SUÉCIA':'1x1','JORDÂNIA x ARGENTINA':'0x3','JORDÂNIA x ARGÉLIA':'0x1','MARROCOS x HAITI':'3x0','MÉXICO x AFRICA DO SUL':'1x0','MÉXICO x CORÉIA DO SUL':'1x1','NORUEGA x FRANÇA':'1x2','NORUEGA x SENEGAL':'1x1','NOVA ZELÂNDIA x BÉLGICA':'0x1','NOVA ZELÂNDIA x EGITO':'0x1','PANAMÁ x CROÁCIA':'0x2','PANAMÁ x INGLATERRA':'0x2','PARAGUAI x AUSTRÁLIA':'1x0','PORTUGAL x RD CONGO':'3x1','PORTUGAL x UZBESQUISTÃO':'2x0','RD CONGO x UZBESQUISTÃO':'0x1','REPUBLICA TCHÉCA x AFRICA DO SUL':'1x0','REPUBLICA TCHÉCA x MÉXICO':'1x0','SENEGAL x IRAQUE':'2x0','SUÉCIA x TUNÍSIA':'2x0','SUÍÇA x BÓSNIA':'1x2','SUÍÇA x CANADÁ':'2x1','TUNÍSIA x HOLANDA':'0x2','TUNÍSIA x JAPÃO':'0x1','TURQUIA x ESTADOS UNIDOS':'2x1','TURQUIA x PARAGUAI':'1x0','URUGUAI x CABO VERDA':'3x0','URUGUAI x ESPANHA':'0x1','UZBESQUISTÃO x COLÔMBIA':'0x1','ÁUSTRIA x JORDÂNIA':'2x0',campeao:'França',vice:'Portugal',terceiro:'Brasil',quarto:'Croácia',artilheiro:'Mbappe'},
+  'Kiko':{'AFRICA DO SUL x CORÉIA DO SUL':'1x1','ALEMANHA x COSTA DO MARFIM':'3x0','ALEMANHA x CURAÇAO':'4x0','ARGENTINA x ARGÉLIA':'3x0','ARGENTINA x ÁUSTRIA':'2x1','ARGÉLIA x ÁUSTRIA':'1x1','ARÁBIA SAUDITA x URUGUAI':'0x2','AUSTRÁLIA x TURQUIA':'2x1','BRASIL x HAITI':'2x0','BRASIL x MARROCOS':'3x0','BÉLGICA x EGITO':'1x0','BÉLGICA x IRÃ':'2x1','BÓSNIA x CATAR':'0x1','CABO VERDA x ARÁBIA SAUDITA':'0x1','CANADÁ x BÓSNIA':'1x0','CANADÁ x CATAR':'0x1','CATAR x SUÍÇA':'0x2','COLÔMBIA x PORTUGAL':'1x2','COLÔMBIA x RD CONGO':'2x0','CORÉIA DO SUL x REPUBLICA TCHÉCA':'1x1','COSTA DO MARFIM x EQUADOR':'0x1','CROÁCIA x GANA':'2x0','CURAÇAO x COSTA DO MARFIM':'1x1','EGITO x IRÃ':'2x2','EQUADOR x ALEMANHA':'0x2','EQUADOR x CURAÇAO':'1x0','ESCÓCIA x BRASIL':'0x1','ESCÓCIA x MARROCOS':'1x1','ESPANHA x ARÁBIA SAUDITA':'2x1','ESPANHA x CABO VERDA':'2x0','ESTADOS UNIDOS x AUSTRÁLIA':'2x2','ESTADOS UNIDOS x PARAGUAI':'1x0','FRANÇA x IRAQUE':'2x0','FRANÇA x SENEGAL':'3x1','GANA x PANAMÁ':'2x2','HAITI x ESCÓCIA':'0x1','HOLANDA x JAPÃO':'2x0','HOLANDA x SUÉCIA':'1x0','INGLATERRA x CROÁCIA':'2x2','INGLATERRA x GANA':'2x0','IRAQUE x NORUEGA':'0x2','IRÃ x NOVA ZELÂNDIA':'0x1','JAPÃO x SUÉCIA':'1x0','JORDÂNIA x ARGENTINA':'0x3','JORDÂNIA x ARGÉLIA':'0x1','MARROCOS x HAITI':'0x0','MÉXICO x AFRICA DO SUL':'2x0','MÉXICO x CORÉIA DO SUL':'3x1','NORUEGA x FRANÇA':'1x2','NORUEGA x SENEGAL':'2x1','NOVA ZELÂNDIA x BÉLGICA':'1x2','NOVA ZELÂNDIA x EGITO':'1x0','PANAMÁ x CROÁCIA':'1x2','PANAMÁ x INGLATERRA':'1x3','PARAGUAI x AUSTRÁLIA':'1x0','PORTUGAL x RD CONGO':'4x0','PORTUGAL x UZBESQUISTÃO':'2x0','RD CONGO x UZBESQUISTÃO':'0x2','REPUBLICA TCHÉCA x AFRICA DO SUL':'2x1','REPUBLICA TCHÉCA x MÉXICO':'0x2','SENEGAL x IRAQUE':'1x1','SUÉCIA x TUNÍSIA':'1x0','SUÍÇA x BÓSNIA':'3x1','SUÍÇA x CANADÁ':'2x1','TUNÍSIA x HOLANDA':'0x1','TUNÍSIA x JAPÃO':'0x1','TURQUIA x ESTADOS UNIDOS':'0x1','TURQUIA x PARAGUAI':'2x1','URUGUAI x CABO VERDA':'2x0','URUGUAI x ESPANHA':'1x2','UZBESQUISTÃO x COLÔMBIA':'1x2','ÁUSTRIA x JORDÂNIA':'1x0',campeao:'França',vice:'Alemanha',terceiro:'Argentina',quarto:'Brasil',artilheiro:'Mbappé'},
+};
+
+const PARTICIPANTS=['Bola','Latino','Rossetto','Fred','Juca','Loira','Taquara','Kinho','Kiko'];
+const PRIZE={1:'R$ 350+25',2:'R$ 100',3:'R$ 50',9:'-R$ 25'};
+const DIAS=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+let JOGOS=[];
+let RANKING=[];
+let shareType='hoje';
+let hasLive=false;
+
+function dn(k){return DN[k]||k}
+
+// ── PONTUAÇÃO: todos os critérios se acumulam (max 40 na fase de grupos)
+function calcPts(pal,g1,g2){
+  if(g1===null||g1===undefined)return null;
+  if(!pal||pal==='?')return{pts:0,tipo:'zero'};
+  const[p1s,p2s]=pal.split('x');
+  const p1=parseInt(p1s),p2=parseInt(p2s);
+  if(isNaN(p1)||isNaN(p2))return{pts:0,tipo:'zero'};
+  let pts=0;
+  const exact=p1===g1&&p2===g2;
+  const rv=g1>g2?'1':g2>g1?'2':'E';
+  const pv=p1>p2?'1':p2>p1?'2':'E';
+  const winner=rv===pv;
+  if(exact) pts+=20;   // placar exato
+  if(winner) pts+=10;  // acertou vencedor/empate
+  if(p1===g1) pts+=5;  // acertou gol time 1
+  if(p2===g2) pts+=5;  // acertou gol time 2
+  const tipo=exact?'exact':winner?'winner':pts>0?'partial':'zero';
+  return{pts,tipo};
+}
+
+function ptsTag(r){
+  if(!r)return`<span class="p-pts pts-pending">—</span>`;
+  const cls=r.tipo==='exact'?'pts-exact':r.tipo==='winner'?'pts-winner':r.tipo==='partial'?'pts-partial':'pts-zero';
+  return`<span class="p-pts ${cls}">${r.pts>0?'+'+r.pts:'0'}</span>`;
+}
+
+function computeRanking(){
+  return PARTICIPANTS.map(name=>{
+    let pts=0;
+    JOGOS.forEach(j=>{
+      if(!j.played)return;
+      const r=calcPts((PALPITES[name]||{})[j.key],j.g1,j.g2);
+      if(r)pts+=r.pts;
+    });
+    return{name,pts};
+  }).sort((a,b)=>b.pts-a.pts).map((r,i,arr)=>({...r,pos:i===arr.length-1?9:i+1}));
+}
+
+function getBRTToday(){
+  return new Date(new Date().getTime()-3*60*60*1000).toISOString().slice(0,10);
+}
+
+// ── FETCH resultados.json ────────────────────────────────────────────
+async function loadResults(){
+  try{
+    const r=await fetch('resultados.json?t='+Date.now());
+    if(!r.ok)throw new Error('no json');
+    const data=await r.json();
+    const matches=data.matches||[];
+    hasLive=false;
+    JOGOS=[];
+    matches.forEach(m=>{
+      const t1k=TM[m.homeTeam?.name];
+      const t2k=TM[m.awayTeam?.name];
+      if(!t1k||!t2k){
+        if(!t1k) console.warn('Time não reconhecido (home):', m.homeTeam?.name);
+        if(!t2k) console.warn('Time não reconhecido (away):', m.awayTeam?.name);
+        return;
+      }
+      const ft=m.score?.fullTime;
+      const played=m.status==='FINISHED';
+      const live=m.status==='IN_PLAY'||m.status==='PAUSED';
+      if(live)hasLive=true;
+      const g1=played?(ft?.home??null):null;
+      const g2=played?(ft?.away??null):null;
+      const utc=new Date(m.utcDate);
+      // Converte UTC para BRT (UTC-3) usando os campos UTC diretamente
+      const brtMs=utc.getTime()-3*60*60*1000;
+      const brt=new Date(brtMs);
+      const hh=String(brt.getUTCHours()).padStart(2,'0');
+      const mm=String(brt.getUTCMinutes()).padStart(2,'0');
+      const hora=`${hh}:${mm}`;
+      const dd=String(brt.getUTCDate()).padStart(2,'0');
+      const mo=String(brt.getUTCMonth()+1).padStart(2,'0');
+      const data_str=`${dd}/${mo}`;
+      const dateStr=`${brt.getUTCFullYear()}-${mo}-${dd}`;
+      const grp=m.group?m.group.replace('GROUP_',''):(m.stage||'?');
+      JOGOS.push({t1:t1k,t2:t2k,key:`${t1k} x ${t2k}`,g1,g2,played,live,grp,hora,data:data_str,dateStr});
+    });
+
+    const pl=JOGOS.filter(j=>j.played).length;
+    const lv=JOGOS.filter(j=>j.live).length;
+    setBanner('hoje-banner','ok', lv>0?`<span class="live-dot"></span>${lv} ao vivo · ${pl} finalizados`:`✅ ${pl} jogos finalizados`);
+    setBanner('rank-banner','ok',`✅ Pontuação calculada sobre ${pl} resultados`);
+  }catch(e){
+    setBanner('hoje-banner','error','❌ Erro ao carregar resultados — tente recarregar');
+    setBanner('rank-banner','error','❌ Erro ao carregar dados');
+    JOGOS=[];
+  }
+
+  RANKING=computeRanking();
+  renderHoje();
+  renderRanking();
+  renderJogos();
+  renderPalpitesSelect();
+  renderPalpitesView();
+  buildShareMsg();
+
+  setTimeout(loadResults, hasLive?2*60*1000:5*60*1000);
+}
+
+function setBanner(id,cls,html){
+  const el=document.getElementById(id);
+  el.className=`banner ${cls}`;
+  el.innerHTML=html;
+}
+
+// ── HOJE ─────────────────────────────────────────────────────────────
+function renderHoje(){
+  const brtNow=new Date(new Date().getTime()-3*60*60*1000);
+  document.getElementById('today-label').textContent=`${brtNow.getDate()} ${MESES[brtNow.getMonth()]} ${brtNow.getFullYear()}`;
+  document.getElementById('today-sub').textContent=`${DIAS[brtNow.getDay()]} · Copa do Mundo 2026`;
+  const today=getBRTToday();
+  const tg=JOGOS.filter(j=>j.dateStr===today);
+  const c=document.getElementById('hoje-list');
+  if(!tg.length){c.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted)">Sem jogos hoje 😴<br><br>Veja a aba ⚽ Jogos.</div>`;return;}
+  c.innerHTML=tg.map(g=>{
+    const sc=g.played||g.live?`<div class="scoreline">${g.g1??'?'} × ${g.g2??'?'}</div>`:`<div class="scoreline pending">${g.hora}</div>`;
+    const sb=g.played?'badge-ok':g.live?'badge-live':'badge-pending';
+    const sl=g.played?'✅ Encerrado':g.live?`<span class="live-dot"></span>AO VIVO`:`🕐 ${g.hora} BRT`;
+    const palRows=RANKING.map(r=>{
+      const pal=(PALPITES[r.name]||{})[g.key]||'?';
+      const res=g.played?calcPts(pal,g.g1,g.g2):null;
+      return`<div class="pal-row"><span class="p-name">${r.name}</span><span class="p-score">${pal}</span>${ptsTag(res)}</div>`;
+    }).join('');
+    return`<div class="game-card ${g.played?'played':g.live?'live':''}">
+      <div class="game-header"><span class="game-group">Grupo ${g.grp}</span><span class="badge ${sb}">${sl}</span></div>
+      <div class="game-score-row">
+        <div class="game-team"><div class="game-team-flag">${FLAGS[g.t1]||'🏳️'}</div><div class="game-team-name">${dn(g.t1)}</div></div>
+        <div class="game-center">${sc}</div>
+        <div class="game-team"><div class="game-team-flag">${FLAGS[g.t2]||'🏳️'}</div><div class="game-team-name">${dn(g.t2)}</div></div>
+      </div>
+      <div class="palpites-section"><div class="palpites-title">Palpites do bolão</div><div class="pal-rows">${palRows}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── RANKING ───────────────────────────────────────────────────────────
+function renderRanking(){
+  document.getElementById('rank-list').innerHTML=RANKING.map(r=>{
+    const pl=r.pos===1?'🥇':r.pos===2?'🥈':r.pos===3?'🥉':r.pos===9?'💀':r.pos;
+    const pc=r.pos===1?'p1':r.pos===2?'p2':r.pos===3?'p3':r.pos===9?'last':'';
+    const pz=PRIZE[r.pos]||'';
+    const cam=(PALPITES[r.name]||{}).campeao||'?';
+    const art=(PALPITES[r.name]||{}).artilheiro||'?';
+    return`<div class="rank-row" onclick="goToPalpites('${r.name}')">
+      <div class="rank-pos ${pc}">${pl}</div>
+      <div class="rank-info"><div class="rank-name">${r.name}</div><div class="rank-picks">🏆 ${cam} &nbsp;⚽ ${art}</div>${r.pos===9?'<div class="last-badge">paga meia cota ao 1º</div>':''}</div>
+      <div class="rank-score"><div class="rank-pts">${r.pts}</div><div class="rank-pts-label">pts</div>${pz?`<div class="rank-prize ${r.pos===9?'danger':''}">${pz}</div>`:''}</div>
+    </div>`;
+  }).join('');
+  const cats=[{key:'campeao',label:'🏆 Campeão'},{key:'vice',label:'🥈 Vice'},{key:'terceiro',label:'🥉 3º'},{key:'quarto',label:'4️⃣ 4º'},{key:'artilheiro',label:'⚽ Artilheiro'}];
+  document.getElementById('picks-grid').innerHTML=cats.map(c=>`
+    <div class="pick-card" style="${c.key==='artilheiro'?'grid-column:1/-1':''}">
+      <div class="pick-label">${c.label}</div>
+      ${RANKING.map(r=>`<div class="pick-item"><span class="pick-person">${r.name}</span><span class="pick-value ${(PALPITES[r.name]||{})[c.key]==='Brasil'?'brasil':''}">${(PALPITES[r.name]||{})[c.key]||'?'}</span></div>`).join('')}
+    </div>`).join('');
+}
+
+// ── JOGOS ─────────────────────────────────────────────────────────────
+function renderJogos(){
+  const byG={};
+  JOGOS.forEach(j=>{if(!byG[j.grp])byG[j.grp]=[];byG[j.grp].push(j);});
+  let html='';
+  Object.entries(byG).forEach(([g,jogos])=>{
+    html+=`<div class="group-hdr">Grupo ${g}</div>`;
+    jogos.forEach((j,idx)=>{
+      const sc=j.played||j.live?`<div class="score-box"><span class="score-num">${j.g1??'?'}</span><span class="score-sep">x</span><span class="score-num">${j.g2??'?'}</span></div>`:`<div class="score-box pending"><span class="score-num">vs</span></div>`;
+      const bd=j.live?'badge-live2':j.played?'badge-played':'badge-pend';
+      const bl=j.live?'🔴 Ao Vivo':j.played?'Jogado':`${j.hora} BRT`;
+      const id=`jg-${g}-${idx}`;
+      const ph=RANKING.map(r=>{
+        const pal=(PALPITES[r.name]||{})[j.key]||'?';
+        const res=j.played?calcPts(pal,j.g1,j.g2):null;
+        const cls=res?(res.tipo==='exact'?'pts-exact':res.tipo==='winner'?'pts-winner':res.tipo==='partial'?'pts-partial':'pts-zero'):'';
+        return`<div class="pal-row"><span class="p-name">${r.name}</span><span class="p-score">${pal}</span>${res?`<span class="p-pts ${cls}">${res.pts>0?'+'+res.pts:'0'}</span>`:`<span class="p-pts pts-pending">—</span>`}</div>`;
+      }).join('');
+      html+=`<div class="jogo-card">
+        <div class="jogo-teams"><span class="team-name">${dn(j.t1)}</span>${sc}<span class="team-name right">${dn(j.t2)}</span></div>
+        <div class="jogo-meta"><span>${j.data}</span><span class="jogo-badge ${bd}">${bl}</span></div>
+        <div class="pal-toggle" onclick="togglePal('${id}',this)"><span>Ver palpites</span><span class="arrow">▼</span></div>
+        <div class="pal-grid" id="${id}">${ph}</div>
+      </div>`;
+    });
+  });
+  document.getElementById('jogos-list').innerHTML=html;
+}
+
+function togglePal(id,el){const g=document.getElementById(id);g.classList.toggle('open');el.classList.toggle('open');el.querySelector('span:first-child').textContent=g.classList.contains('open')?'Ocultar palpites':'Ver palpites';}
+
+// ── PALPITES VIEW ─────────────────────────────────────────────────────
+function renderPalpitesSelect(){document.getElementById('person-select').innerHTML=RANKING.map(r=>`<option value="${r.name}">${r.pos}º ${r.name} — ${r.pts} pts</option>`).join('');}
+function goToPalpites(name){showTab('palpites',document.querySelectorAll('.tab')[3]);document.getElementById('person-select').value=name;renderPalpitesView();}
+
+function renderPalpitesView(){
+  const name=document.getElementById('person-select').value;
+  if(!name)return;
+  const rank=RANKING.find(r=>r.name===name)||{pts:0,pos:'?'};
+  const pals=PALPITES[name]||{};
+  let html=`<div class="rank-card" style="margin-bottom:16px"><div style="padding:16px;display:flex;justify-content:space-between;align-items:center">
+    <div><div style="font-size:20px;font-weight:700">${name}</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:4px">🏆 ${pals.campeao||'?'} &nbsp; ⚽ ${pals.artilheiro||'?'}</div>
+    <div style="font-size:12px;color:var(--muted)">🥈 ${pals.vice||'?'} &nbsp; 🥉 ${pals.terceiro||'?'}</div></div>
+    <div style="text-align:right"><div style="font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--amarelo);line-height:1">${rank.pts}</div>
+    <div style="font-size:10px;color:var(--muted)">PONTOS</div>
+    <div style="font-size:12px;color:var(--verde);font-weight:600">${rank.pos}º lugar</div></div>
+  </div></div>`;
+  const byG={};
+  JOGOS.forEach(j=>{if(!byG[j.grp])byG[j.grp]=[];byG[j.grp].push(j);});
+  Object.entries(byG).forEach(([g,jogos])=>{
+    html+=`<div class="group-hdr">Grupo ${g}</div>`;
+    jogos.forEach(j=>{
+      const pal=pals[j.key]||'?';
+      const res=j.played?calcPts(pal,j.g1,j.g2):null;
+      const sc=j.played||j.live?`<div class="score-box"><span class="score-num">${j.g1??'?'}</span><span class="score-sep">x</span><span class="score-num">${j.g2??'?'}</span></div>`:`<div class="score-box pending"><span class="score-num">vs</span></div>`;
+      const ptsCls=res?(res.tipo==='exact'?'pts-exact':res.tipo==='winner'?'pts-winner':res.tipo==='partial'?'pts-partial':'pts-zero'):'';
+      html+=`<div class="jogo-card">
+        <div class="jogo-teams"><span class="team-name">${dn(j.t1)}</span>${sc}<span class="team-name right">${dn(j.t2)}</span></div>
+        <div class="jogo-meta"><span>${j.data}</span>
+        <span class="jogo-badge ${j.live?'badge-live2':j.played?'badge-played':'badge-pend'}">${j.live?'🔴 Ao Vivo':j.played?'Jogado':`${j.hora} BRT`}</span>
+        <span style="margin-left:auto;font-weight:700">Palpite: <span style="color:var(--text)">${pal}</span></span>
+        ${res?`<span class="p-pts ${ptsCls}">${res.pts>0?'+'+res.pts:'0'}</span>`:''}</div>
+      </div>`;
+    });
+  });
+  document.getElementById('palpites-person').innerHTML=html;
+}
+
+// ── SHARE ─────────────────────────────────────────────────────────────
+function setShareType(t,el){shareType=t;document.querySelectorAll('.share-tab-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');buildShareMsg();}
+
+function buildShareMsg(){
+  const brtNow=new Date(new Date().getTime()-3*60*60*1000);
+  const ds=`${brtNow.getDate().toString().padStart(2,'0')}/${(brtNow.getMonth()+1).toString().padStart(2,'0')}`;
+  const today=getBRTToday();
+  let msg='';
+  if(shareType==='hoje'){
+    const tg=JOGOS.filter(j=>j.dateStr===today);
+    msg=`⚽ *BOLÃO COPA 2026 — ${ds}*\n━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    if(!tg.length)msg+='Sem jogos hoje.\n';
+    else tg.forEach(g=>{
+      const st=g.played?`✅ ${g.g1} x ${g.g2}`:g.live?`🔴 ${g.g1} x ${g.g2}`:`🕐 ${g.hora} BRT`;
+      msg+=`🏟️ *${dn(g.t1)} x ${dn(g.t2)}* — Grupo ${g.grp}\n${st}\n\nPalpites:\n`;
+      RANKING.forEach(r=>{const pal=(PALPITES[r.name]||{})[g.key]||'?';const res=g.played?calcPts(pal,g.g1,g.g2):null;msg+=`  ${r.pos}º ${r.name}: ${pal}${res&&res.pts>0?` (+${res.pts})`:''}\n`;});
+      msg+='\n';
+    });
+    msg+=`━━━━━━━━━━━━━━━━━━━━━\n📊 Líder: ${RANKING[0]?.name} (${RANKING[0]?.pts} pts) · 💀 Lanterna: ${RANKING[RANKING.length-1]?.name} (${RANKING[RANKING.length-1]?.pts} pts)`;
+  }else{
+    msg=`🏆 *BOLÃO COPA 2026 — Ranking (${ds})*\n━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    RANKING.forEach(r=>{const md=r.pos===1?'🥇':r.pos===2?'🥈':r.pos===3?'🥉':r.pos===9?'💀':`${r.pos}º`;const pz=PRIZE[r.pos]?` → ${PRIZE[r.pos]}`:'';msg+=`${md} *${r.name}* — ${r.pts} pts${pz}\n`;});
+    msg+=`\n━━━━━━━━━━━━━━━━━━━━━\n🏆 Campeões:\n`;
+    RANKING.forEach(r=>{msg+=`  ${r.name}: ${(PALPITES[r.name]||{}).campeao||'?'}\n`;});
+    msg+=`\n💰 R$350+25 🥇 | R$100 🥈 | R$50 🥉 | 💀 Paga meia cota ao 1º`;
+  }
+  document.getElementById('share-preview').textContent=msg;
+  window._shareMsg=msg;
+}
+
+function openWhatsApp(){buildShareMsg();window.open(`https://wa.me/?text=${encodeURIComponent(window._shareMsg)}`,'_blank');}
+function copyMessage(){buildShareMsg();navigator.clipboard.writeText(window._shareMsg).then(()=>{const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);});}
+function showTab(id,el){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');if(el)el.classList.add('active');if(id==='share')buildShareMsg();}
+
+loadResults();
+</script>
+</body>
+</html>
