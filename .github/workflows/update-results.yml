@@ -1,7 +1,7 @@
 name: Update Results
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 concurrency:
@@ -29,10 +29,11 @@ jobs:
           import json
           d=json.load(open('resultados.json'))
           ms=d.get('matches',[])
-          print(f'Total: {len(ms)} jogos')
-          for m in ms:
-              if m['status']=='FINISHED':
-                  print(m['homeTeam']['name'],'vs',m['awayTeam']['name'],'|',m['score']['fullTime']['home'],'-',m['score']['fullTime']['away'])
+          played=[m for m in ms if m['status']=='FINISHED']
+          print(f'Total: {len(ms)} jogos, {len(played)} finalizados')
+          for m in played:
+              g=m['score']['fullTime']
+              print(m['homeTeam']['name'], g['home'], 'x', g['away'], m['awayTeam']['name'])
           "
 
       - name: Commit
