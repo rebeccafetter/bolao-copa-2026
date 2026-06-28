@@ -109,9 +109,9 @@
     <div class="trophy">🏆</div>
   </div>
   <div class="prize-banner">
-    <div class="prize-item gold"><div class="amount">R$350</div><div class="label">🥇 Campeão +R$25</div></div>
-    <div class="prize-item silver"><div class="amount">R$100</div><div class="label">🥈 2º lugar</div></div>
-    <div class="prize-item bronze"><div class="amount">R$50</div><div class="label">🥉 3º lugar</div></div>
+    <div class="prize-item gold"><div class="amount">R$340</div><div class="label">🥇 Campeão +R$25</div></div>
+    <div class="prize-item silver"><div class="amount">R$90</div><div class="label">🥈 2º lugar</div></div>
+    <div class="prize-item bronze"><div class="amount">R$45</div><div class="label">🥉 3º lugar</div></div>
     <div class="prize-item" style="border-top:3px solid #ff4444"><div class="amount" style="color:#ff6666;font-size:18px">-R$25</div><div class="label">💀 Último</div></div>
   </div>
 </div>
@@ -225,7 +225,7 @@ const PALPITES={
 };
 
 const PARTICIPANTS=['Bola','Latino','Rossetto','Fred','Juca','Loira','Taquara','Kinho','Kiko'];
-const PRIZE={1:'R$ 350+25',2:'R$ 100',3:'R$ 50',9:'-R$ 25'};
+const PRIZE={1:'R$ 340+25',2:'R$ 90',3:'R$ 45',9:'-R$ 25'};
 const DIAS=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
@@ -501,7 +501,7 @@ function buildShareMsg(){
     RANKING.forEach(r=>{const md=r.pos===1?'🥇':r.pos===2?'🥈':r.pos===3?'🥉':r.pos===9?'💀':`${r.pos}º`;const pz=PRIZE[r.pos]?` → ${PRIZE[r.pos]}`:'';msg+=`${md} *${r.name}* — ${r.pts} pts${pz}\n`;});
     msg+=`\n━━━━━━━━━━━━━━━━━━━━━\n🏆 Campeões:\n`;
     RANKING.forEach(r=>{msg+=`  ${r.name}: ${(PALPITES[r.name]||{}).campeao||'?'}\n`;});
-    msg+=`\n💰 R$350+25 🥇 | R$100 🥈 | R$50 🥉 | 💀 Paga meia cota ao 1º`;
+    msg+=`\n💰 R$340+25 🥇 | R$90 🥈 | R$45 🥉 | 💀 Paga meia cota ao 1º`;
   }
   document.getElementById('share-preview').textContent=msg;
   window._shareMsg=msg;
