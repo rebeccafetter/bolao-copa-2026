@@ -519,7 +519,7 @@ function buildShareMsg(){
     msg+=`\n💰 R$340+25 🥇 | R$90 🥈 | R$45 🥉 | 💀 Paga meia cota ao 1º`;
   }
   document.getElementById('share-preview').textContent=msg;
-  window._shareMsg=msg;
+  window._shareMsg=msg; 
 }
 
 function openWhatsApp(){buildShareMsg();window.open(`https://wa.me/?text=${encodeURIComponent(window._shareMsg)}`,'_blank');}
