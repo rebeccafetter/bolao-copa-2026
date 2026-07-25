@@ -274,6 +274,10 @@ function ptsTag(r){
   return`<span class="p-pts ${cls}">${r.pts>0?'+'+r.pts:'0'}</span>`;
 }
 
+// Resultado final real do torneio
+const RESULTADO_FINAL={campeao:'Espanha',vice:'Argentina',terceiro:'Inglaterra',quarto:'França',artilheiro:'Mbappé'};
+const PTS_ESPECIAIS={campeao:300,vice:225,terceiro:120,quarto:90,artilheiro:150};
+
 function computeRanking(){
   return PARTICIPANTS.map(name=>{
     let pts=0;
@@ -282,6 +286,17 @@ function computeRanking(){
       const r=calcPts((PALPITES[name]||{})[j.key],j.g1,j.g2,j.stage);
       if(r)pts+=r.pts;
     });
+    // Soma pontos especiais (campeão, vice, 3º, 4º, artilheiro)
+    const pal=PALPITES[name]||{};
+    ['campeao','vice','terceiro','quarto'].forEach(cat=>{
+      if(pal[cat] && RESULTADO_FINAL[cat] && pal[cat]===RESULTADO_FINAL[cat]){
+        pts+=PTS_ESPECIAIS[cat];
+      }
+    });
+    if(pal.artilheiro && RESULTADO_FINAL.artilheiro &&
+       pal.artilheiro.toLowerCase().trim()===RESULTADO_FINAL.artilheiro.toLowerCase().trim()){
+      pts+=PTS_ESPECIAIS.artilheiro;
+    }
     return{name,pts};
   }).sort((a,b)=>b.pts-a.pts).map((r,i,arr)=>({...r,pos:i===arr.length-1?9:i+1}));
 }
