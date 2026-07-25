@@ -362,7 +362,7 @@ async function loadResults(){
   renderPalpitesView();
   buildShareMsg();
 
-  setTimeout(loadResults, hasLive?2*60*1000:5*60*1000);
+  // Copa encerrada — sem auto-refresh, resultados finais salvos
 }
 
 function setBanner(id,cls,html){
